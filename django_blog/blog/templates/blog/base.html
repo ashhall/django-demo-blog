@@ -1,0 +1,198 @@
+{% load static %}
+<!DOCTYPE HTML>
+<!--
+	Future Imperfect by HTML5 UP
+	html5up.net | @ajlkn
+	Free for personal and commercial use under the CCA 3.0 license (html5up.net/license)
+-->
+<html>
+	<head>
+
+		{% if title %}
+        	<title>Demo Blog - {{ title }}</title>
+    	{% else %}
+        	<title>Demo Blog</title>
+    	{% endif %}
+
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+		<link rel="stylesheet" type="text/css" href="{% static 'blog/css/main.css' %}">
+
+		<!-- jquery library -->
+		<script src="{% static 'blog/js/jquery.min.js' %}"></script>
+	
+		<!-- Medium Style Editor -->
+		<script src="//cdn.jsdelivr.net/npm/medium-editor@latest/dist/js/medium-editor.min.js"></script>
+		<link rel="stylesheet" href="//cdn.jsdelivr.net/npm/medium-editor@latest/dist/css/medium-editor.min.css" type="text/css" media="screen" charset="utf-8">
+
+	</head>
+	<body class="is-preload">
+
+		<!-- Wrapper -->
+			<div id="wrapper">
+
+				<!-- Header -->
+					<header id="header">
+						<h1><a href="{% url 'blog_home' %}">Demo Blog</a></h1>
+						<nav class="links">
+							<ul>
+								<li><a href="{% url 'blog_about' %}">About</a></li>
+								<li><a href="#">Github</a></li>
+								<li><a href="#">Portfolio</a></li>
+								<li><a href="#">Contact me</a></li>
+							</ul>
+						</nav>
+						<nav class="main">
+							<ul>
+								<li class="search">
+									<a class="fa-search" href="#search">Search</a>
+									<form id="search" method="get" action="{% url 'blog_search' %}">
+										<input type="text" name="query" placeholder="Search" />
+									</form>
+								</li>
+								<li class="menu">
+									<a class="fa-bars" href="#menu">Menu</a>
+								</li>
+							</ul>
+						</nav>
+					</header>
+
+				<!-- Menu -->
+					<section id="menu">
+
+						<!-- Search -->
+							<section>
+								<form class="search" method="get" action="{% url 'blog_search' %}">
+									<input type="text" name="query" placeholder="Search" />
+								</form>
+							</section>
+
+							{% if user.is_authenticated %}
+						<!-- Links -->
+							<section>
+								<ul class="links">
+									
+										<li>
+											<a href="{% url 'post_create' %}">
+												<h3>Create Post</h3>
+											</a>
+										</li>
+										<li>
+											<a href="{% url 'user_posts' user.username %}">
+												<h3>My Posts</h3>
+											</a>
+										</li>
+										<li>
+											<a href="{% url 'user_drafts' user.username %}">
+												<h3>My Drafts</h3>
+											</a>
+										</li>
+										<li>
+											<a href="{% url 'profile' %}">
+												<h3>{{ user.username }}</h3>
+											</a>
+										</li>
+									
+								</ul>
+							</section>
+							{% endif %}
+
+						<!-- Actions -->
+							<section>
+								<ul class="actions stacked">
+									{% if user.is_authenticated %}
+										<li><a href="{% url 'logout' %}" class="button large fit">Log Out</a></li>
+									{% else %}
+										<li><a href="{% url 'login' %}" class="button large fit">Log In</a></li>
+										<li><a href="{% url 'register' %}" class="button large fit">Register</a></li>
+									{% endif %}
+								</ul>
+							</section>
+
+					</section>
+
+				<!-- Main -->
+					<div id="main">
+						<div class="col-md-8">
+				            {% if messages %}
+				                {% for message in messages %}
+				                    <div class="alert alert-{{ message.tags }}">
+				                        {{ message }}
+				                    </div>
+				                {% endfor %}
+				            {% endif %}
+
+				           <script type="text/javascript">
+
+							$(document).on("click", ".like-button", function(e) {
+							  e.preventDefault();
+							  $.ajax({
+							    type: "POST",
+							    url: "{% url "post_like" %}",
+							    data: {
+							    	postid: $(this).attr("value"),
+							    	csrfmiddlewaretoken: $("input[name=csrfmiddlewaretoken]").val(),
+							    	action: "POST"
+							    },
+							    success: function(data){
+							      document.getElementById("like-count").innerHTML = data["updated_count"]
+							      console.log(document.getElementById("like-count"))
+							      console.log(data["updated_count"])
+							    },
+							    error: function(xhr, errmsg, err){
+							    	console.log(errmsg)
+							    	console.log(err)
+							    }
+							  });
+							})
+							</script>
+
+				          {% block content %}
+				          {% endblock content %}
+				        </div>
+					</div>
+
+				<!-- Sidebar -->
+					<section id="sidebar">
+
+						<!-- Intro -->
+							<section id="intro">
+								<a href="{% url 'blog_home' %}" class="logo"><img src="{% static 'blog/images/logo.jpg' %}" alt="logo image" /></a>
+								<header>
+									<h2><a href="{% url 'blog_home' %}">Demo Blog</a></h2>
+									<p>Template from <a href="http://html5up.net">HTML5 UP</a></p>
+								</header>
+							</section>
+
+						<!-- About -->
+							<section class="blurb">
+								<h2>About</h2>
+								<p>Mauris neque quam, fermentum ut nisl vitae, convallis maximus nisl. Sed mattis nunc id lorem euismod amet placerat. Vivamus porttitor magna enim, ac accumsan tortor cursus at phasellus sed ultricies.</p>
+								<ul class="actions">
+									<li><a href="{% url 'blog_about' %}" class="button">Learn More</a></li>
+								</ul>
+							</section>
+
+						<!-- Footer -->
+							<section id="footer">
+								<ul class="icons">
+									<li><a href="#" class="icon brands fa-github"><span class="label">Github</span></a></li>
+									<li><a href="#" class="icon solid fa-rss"><span class="label">RSS</span></a></li>
+									<li><a href="#" class="icon solid fa-envelope"><span class="label">Email</span></a></li>
+								</ul>
+								<p class="copyright">&copy; Untitled. Design: <a href="http://html5up.net">HTML5 UP</a>. Images: <a href="http://unsplash.com">Unsplash</a>.</p>
+							</section>
+
+					</section>
+
+			</div>
+
+		<!-- Scripts -->
+            <script src="{% static 'blog/js/jquery.min.js' %}"></script>
+			<script src="{% static 'blog/js/browser.min.js' %}"></script>
+			<script src="{% static 'blog/js/breakpoints.min.js' %}"></script>
+			<script src="{% static 'blog/js/util.js' %}"></script>
+			<script src="{% static 'blog/js/main.js' %}"></script>
+
+	</body>
+</html>

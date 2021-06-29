@@ -1,0 +1,30 @@
+{% extends "blog/base.html" %}
+
+
+{% block content %}
+{% if query %}
+<h1>Search results for "{{ query }}:"</h1>
+<h3>
+		{% with results.count as total_results %}
+		Found {{ total_results }} result{{ total_results|pluralize }}
+		{% endwith %}
+</h3>
+<br>
+{% for post in results %}
+	<p><a href="{% url 'post_detail' post.id %}">{{ post.title }}</a></p>
+{% endfor %}
+
+{% endif %}
+
+{% endblock content %}
+
+{# <form method="get">
+	{{ form.as_p }}
+	<input class="btn btn-primary my-1" type="submit" value="Search">
+</form>
+ #}
+
+
+
+
+

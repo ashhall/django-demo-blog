@@ -1,0 +1,27 @@
+{% extends "blog/base.html" %}
+{% load crispy_forms_tags %}
+{% block content %}
+<div class="content-section">
+    <form method="POST">
+        {% csrf_token %}
+        <fieldset class="form-group">
+            <legend class="border-bottom mb-4">Blog Post</legend>
+                {{ form|crispy }}
+        </fieldset>
+        
+        <footer>
+
+            <ul class="actions" style="justify-content:flex-end">
+                {% if object.date_published %}
+                    <li><button type="submit" class="save btn btn-default">Save</button></li>
+                {% else %}
+                    <li style="justify-content:flex-start;"><a href="{% url 'post_publish' object.id %}" class="button large">Publish</a></li>
+                {% endif %}
+                <li><a href="{% url 'post_delete' object.id %}" class="button large">Delete</a></li>
+            </ul>
+
+        </footer>
+    </form>
+</div>
+{% endblock content %}
+

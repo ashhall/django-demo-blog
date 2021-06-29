@@ -1,0 +1,86 @@
+{% extends "blog/base.html" %}
+{% block content %}
+
+	{% for post in posts %}
+		<!-- Post -->
+		<article class="post">
+			<header>
+				<div class="title">
+					<h2><a href="{% url 'post_detail' post.id %}">{{ post.title }}</a></h2>
+				</div>
+				<div class="meta">
+					<time class="published">{{ post.date_published|date:'F j, Y' }}</time>
+					<a href="{% url 'user_posts' post.author.username %}" class="author"><span class="name">{{ post.author }}</span><img src="{{ post.author.profile.image.url }}" alt="profile pic" /></a>
+				</div>
+			</header>
+			<a href="{% url 'post_detail' post.id %}" class="image featured"><img src="{{ post.image.url }}" alt="image featured" /></a>
+			<p>{{ post.content|truncatechars:200 }}</p>
+			<footer>
+				<ul class="actions">
+					<li><a href="{% url 'post_detail' post.id %}" class="button large">Continue Reading</a></li>
+				</ul>
+				
+				<ul class="stats">
+					{% if request.user.is_authenticated %}
+						{% csrf_token %}
+						<li><a href="{% url 'post_like' %}" class="icon solid fa-heart like-button" value="{{ post.id }}" id="like-count">
+							{{ post.likes.count }}
+						</a></li>
+					{% else %}
+						<li><a href="{% url 'login' %}" class="icon solid fa-heart">
+							{{ post.likes.count }}
+						</a></li>
+					{% endif %}
+					<li><a href="#" class="icon solid fa-comment">{{ post.comments.count }}</a></li>
+				</ul>
+				
+			</footer>
+		</article>
+	{% empty %}
+	<h1>Posts coming soon!</h1>
+	{% endfor %}
+
+	{% if is_paginated %}
+		<!-- Pagination -->
+		<nav aria-label="Page navigation">
+			<ul class="actions pagination justify-content-center">
+				{% if page_obj.has_previous %}
+                  <li class="page-item">
+                      <a class="page-link" href="?page=1" aria-label="First">
+                          <span aria-hidden="true">&laquo;</span>
+                          <span class="sr-only">First</span>
+                      </a>
+                  </li>
+                    <li class="page-item">
+                      <a class="page-link" href="?page={{ page_obj.previous_page_number }}" aria-label="Previous">
+                        <span aria-hidden="true">&lt;</span>
+                        <span class="sr-only">Previous</span>
+                      </a>
+                    </li>
+              	{% endif %}
+              	{% for num in page_obj.paginator.page_range %}
+	                {% if page_obj.number == num %}
+	                    <li class="page-item active"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+	                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+	                    <li class="page-item"><a class="page-link" href="?page={{ num }}">{{ num }}</a></li>
+	                {% endif %}
+                {% endfor %}
+                {% if page_obj.has_next %}
+                  <li class="page-item">
+                      <a class="page-link" href="?page={{ page_obj.next_page_number }}" aria-label="Next">
+                        <span aria-hidden="true">&gt;</span>
+                        <span class="sr-only">Next</span>
+                      </a>
+                  </li>
+                  <li class="page-item">
+                      <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" aria-label="Last">
+                        <span aria-hidden="true">&raquo;</span>
+                        <span class="sr-only">Last</span>
+                      </a>
+                  </li>
+                {% endif %}
+			
+			</ul>
+		</nav>
+	{% endif %}
+{% endblock content %}

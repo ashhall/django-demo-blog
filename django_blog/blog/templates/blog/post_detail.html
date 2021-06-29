@@ -1,0 +1,70 @@
+{% extends "blog/base.html" %}
+{% block content %}
+{% load blog_filters %}
+	<!-- Post -->
+	<article class="post">
+		<header>
+			<div class="title">
+				<h2>{{ post.title }}</h2>
+			</div>
+			<div class="meta">
+				{% if post.date_published %}
+					<time class="published">{{ post.date_published|date:'F j, Y' }}</time>
+					<a href="{% url 'user_posts' post.author.username %}" class="author"><span class="name">{{ post.author }}</span><img src="{{ post.author.profile.image.url }}" alt="profile pic"></a>
+				{% else %}
+					<time class="published">Draft created on<br>{{ post.date_drafted|date:'F j, Y' }}</time>
+				{% endif %}
+			</div>
+		</header>
+
+		<span class="image featured"><img src="{{ post.image.url }}" alt="image featured" /></span>
+		<p>{{ post.content|safe }}</p>
+		<footer>
+			{% if post.date_published %}
+				<ul class="stats">
+					{% if request.user.is_authenticated %}
+						{% csrf_token %}
+						<li><a href="{% url 'post_like' %}" class="icon solid fa-heart like-button" value="{{ post.id }}" id="like-count">
+							{{ post.likes.count }}
+						</a></li>
+					{% else %}
+						<li><a href="{% url 'login' %}" class="icon solid fa-heart">
+							{{ post.likes.count }}
+						</a></li>
+					{% endif %}
+					<li><a href="#" class="icon solid fa-comment">{{ post.comments.count }}</a></li>
+				</ul>
+			{% endif %}
+			{% if post.author == user %}
+				<ul class="actions" style="justify-content:flex-end;">
+					<li><a href="{% url 'post_update' post.id %}" class="button large">Edit</a></li>
+					<li><a href="{% url 'post_publish' post.id %}" class="button large">Publish</a></li>
+				</ul>
+			{% endif %}
+		</footer>
+		
+	</article>
+
+	<div class="comments">
+		{% for comment in post.comments.all %}
+			<div>
+				<b>{{ comment.author }}&ensp;</b>
+				<time class="published">{{ comment.timestamp|trunc_naturaltime }}
+				</time>
+				{{ comment.text|linebreaks }}
+			</div>
+		{% empty %}
+			<p>No comments</p>
+		{% endfor %}
+	
+		<h3>Add a comment</h3>
+
+		<form id="comment-form" method="POST" action="{% url 'post_detail' post.id %}">
+			{% csrf_token %}
+			{{ form.as_p }}
+			<button type="submit" class="save btn btn-primary">Submit</button>
+		</form>
+	
+    </div>
+
+{% endblock content %}
